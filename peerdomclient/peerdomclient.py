@@ -1,8 +1,8 @@
 # Peerdom API client
 
+import json
 import logging
 import time
-import json
 from typing import Optional
 
 import requests
@@ -82,7 +82,7 @@ class PeerdomClient:
         return self._get_with_customfields("peers", id=peer_id, with_customfields=with_customfields)
 
     def create_peer(self, first_name: str, last_name: Optional[str] = None, nick_name: Optional[str] = None, birthdate: Optional[str] = None, percentage: Optional[float] = None):
-        """ 
+        """
         Create a new peer.
 
         Parameters:

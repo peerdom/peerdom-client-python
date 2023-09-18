@@ -37,3 +37,4 @@ addopts = "--random-order --doctest-glob='*.md' --doctest-modules --cov-report t
 [tool.ruff]
 line-length = 88
 extend-select = ["Q", "I", "W"]
+extend-ignore = ["E501"]
