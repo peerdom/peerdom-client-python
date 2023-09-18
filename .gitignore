@@ -1,0 +1,5 @@
+.coverage
+build/
+peerdomclient.egg-info/
+**/__pycache__/
+venv/
