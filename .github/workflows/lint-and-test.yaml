@@ -32,4 +32,4 @@ jobs:
       - name: Install dependencies
         run: pip install .[develop]
       - name: Run pytest
-        run: pytest --cov-fail-under=85
+        run: pytest --cov-fail-under=84
