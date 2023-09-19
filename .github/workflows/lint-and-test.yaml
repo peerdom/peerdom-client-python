@@ -1,11 +1,15 @@
 name: Lint and Test
 
 on:
+  workflow_dispatch: {}
   push:
-    branches-ignore:
+    branches:
       - main
-      - gh-pages
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*
   pull_request:
+    branches:
+      - main
 
 jobs:
   ruff:
@@ -20,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ '3.x', '3.9' ]
+        python-version: ["3.x", "3.9", "3.10", "3.11"]
     name: Test python ${{ matrix.python-version }}
     steps:
       - name: Checkout

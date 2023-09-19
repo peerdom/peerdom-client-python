@@ -5,27 +5,23 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "peerdomclient"
 authors = [
-    {name="Peerdom", email="hello@peerdom.org"},
-    {name="Robin Szymczak", email="robin@peerdom.org"}
+  { name = "Peerdom", email = "hello@peerdom.org" },
+  { name = "Robin Szymczak", email = "robin@peerdom.org" },
 ]
 description = "Peerdom's Python api wrapper developed by Peerdom"
-readme  = "README.md"
-classifiers = [
-    "Programming Language :: Python :: 3",
-]
-dependencies = [
-    "Requests==2.31.0",
-]
+readme = "README.md"
+classifiers = ["Programming Language :: Python :: 3"]
+dependencies = ["Requests==2.31.0"]
 dynamic = ["version"]
 
 [project.optional-dependencies]
 develop = [
-    "ruff==0.0.290",
-    "pytest ==7.4.2",
-    "pytest-cov ==4.1.0",
-    "pytest_mock ==3.11.1",
-    "pytest-random-order == 1.1.0",
-    "setuptools-scm == 7.1.0",
+  "ruff==0.0.290",
+  "pytest ==7.4.2",
+  "pytest-cov ==4.1.0",
+  "pytest_mock ==3.11.1",
+  "pytest-random-order == 1.1.0",
+  "setuptools-scm == 7.1.0",
 ]
 
 [tool.setuptools.packages.find]
@@ -35,6 +31,6 @@ include = ["peerdomclient"]
 addopts = "--random-order --doctest-glob='*.md' --doctest-modules --cov-report term --cov=peerdomclient"
 
 [tool.ruff]
-line-length = 88
 extend-select = ["Q", "I", "W"]
-extend-ignore = ["E501"]
+# E501 is the "Line too long" error.
+ignore = ["E501"]

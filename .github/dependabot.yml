@@ -1,6 +1,5 @@
 version: 2
 updates:
-
   # Update pip dependencies
   - package-ecosystem: "pip"
     directory: "/"
