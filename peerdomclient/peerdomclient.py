@@ -7,8 +7,7 @@ from typing import Optional
 
 import requests
 
-# API_URL = "https://api.peerdom.org/v1"
-API_URL = "http://localhost:3020/v1"
+API_URL = "https://api.peerdom.org/v1"
 
 
 class PeerdomClient:
@@ -19,11 +18,11 @@ class PeerdomClient:
         api_key (str): API key for authentication.
         max_retries (int, optional): Maximum number of retry attempts for API calls.
     """
-    BASE_URL = API_URL
 
-    def __init__(self, api_key: str, max_retries: int = 3):
+    def __init__(self, api_key: str, max_retries: int = 3, api_url: str = API_URL):
         self.api_key = api_key
         self.max_retries = max_retries
+        self.BASE_URL = api_url
 
         self.session = requests.Session()
         self.session.headers.update({
