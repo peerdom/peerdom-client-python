@@ -154,6 +154,7 @@ class PeerdomClient:
 
         Returns:
         list: A list of roles from the API response.
+
         """
         return self._get_with_customfields("roles", limit=limit, offset=offset, with_customfields=with_customfields)
 
