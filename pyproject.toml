@@ -16,7 +16,7 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 develop = [
-  "nox == 2023.4.22"
+  "nox == 2023.4.22",
   "ruff == 0.0.291",
   "pytest == 7.4.2",
   "pytest-cov ==4.1.0",
