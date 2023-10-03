@@ -461,15 +461,12 @@ class PeerdomClient:
             mapId = self.get_active_map()
 
         circles = self.get_circles()
-        root_circle = None
         for circle in circles:
             if "parentId" not in circle.keys():
-                root_circle = circle["id"]
+                return  circle["id"]
 
-        if root_circle is None:
-            raise Exception("No root circle found")
+        raise Exception("No root circle found")
 
-        return root_circle
 
 
 def _assert_percentage(percentage):
