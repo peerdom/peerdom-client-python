@@ -7,6 +7,7 @@ name = "peerdomclient"
 version = "0.1.0"
 description = "Peerdom's Python api wrapper developed by Peerdom"
 authors = ["Peerdom <hello@peerdom.org>", "Robin Szymczak <robin@peerdom.org>"]
+repository = "https://github.com/peerdom/peerdom-client-python/"
 readme = "README.md"
 classifiers = ["Programming Language :: Python :: 3"]
 
@@ -14,7 +15,7 @@ classifiers = ["Programming Language :: Python :: 3"]
 python = "^3.7"
 Requests = "2.31.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.test.dependencies]
 nox = "2023.4.22"
 ruff = "0.0.291"
 pytest = "7.4.2"
@@ -23,6 +24,7 @@ pytest_mock = "3.11.1"
 pytest-random-order = "1.1.0"
 setuptools-scm = "8.0.3"
 poetry-dynamic-versioning = "0.13.1"
+
 [tool.poetry-dynamic-versioning]
 enable = true
 style = "pep440"
