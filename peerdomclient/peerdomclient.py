@@ -463,10 +463,9 @@ class PeerdomClient:
         circles = self.get_circles()
         for circle in circles:
             if "parentId" not in circle.keys():
-                return  circle["id"]
+                return circle["id"]
 
         raise Exception("No root circle found")
-
 
 
 def _assert_percentage(percentage):
