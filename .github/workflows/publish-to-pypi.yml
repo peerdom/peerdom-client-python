@@ -32,7 +32,7 @@ jobs:
 
     - name: Publish to TestPyPI
       if: github.ref != 'refs/heads/main'
-      run: poetry publish --repository-url https://test.pypi.org/legacy/ -u __token__ -p ${{ secrets.TEST_PYPI_API_TOKEN }}
+      run: poetry publish --repository-url https://test.pypi.org/ -u __token__ -p ${{ secrets.TEST_PYPI_API_TOKEN }}
 
     - name: Publish to PyPI
       if: github.ref == 'refs/heads/main'
