@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    tags:
-      - 'v*'
 
 jobs:
   build-and-publish:
@@ -27,15 +25,6 @@ jobs:
 
     - name: Install dependencies
       run: poetry install
-
-    - name: Validate version and tag
-      run: |
-        TAG_NAME=${GITHUB_REF/refs\/tags\//}
-        VERSION=$(poetry version | cut -d ' ' -f 2)
-        if [ "v$VERSION" != "$TAG_NAME" ]; then
-          echo "Error: Tag name ($TAG_NAME) does not match version (v$VERSION)"
-          exit 1
-        fi
 
     - name: Build package
       run: poetry build
