@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - develop 
+      - develop
 
 jobs:
   build-and-publish:
@@ -32,9 +32,9 @@ jobs:
 
     - name: Publish to TestPyPI
       if: github.ref != 'refs/heads/main'
-      run:|
+      run: |
         poetry config repositories.testpypi https://test.pypi.org/legacy/
-        poetry publish --repository-url -u __token__ -p ${{ secrets.TEST_PYPI_API_TOKEN }}
+        poetry publish --repository testpypi -u __token__ -p ${{ secrets.TEST_PYPI_API_TOKEN }}
 
     - name: Publish to PyPI
       if: github.ref == 'refs/heads/main'
