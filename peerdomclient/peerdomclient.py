@@ -154,6 +154,7 @@ class PeerdomClient:
 
         Returns:
         list: A list of roles from the API response.
+
         """
         return self._get_with_customfields("roles", limit=limit, offset=offset, with_customfields=with_customfields)
 
@@ -436,6 +437,35 @@ class PeerdomClient:
         list: A list of maps from the API response.
         """
         return self._get_with_customfields("maps", limit=limit, offset=offset, with_customfields=with_customfields)
+
+    def get_active_map(self):
+        """
+        Retrieves the id of the active map
+        """
+        maps = self.get_maps()
+        for map in maps:
+            if not map["draft"]:
+                return map["id"]
+
+        raise Exception("No active map found")
+
+    def get_root_node(self, mapId=None):
+        """
+        Retrieves the id of the root node of a map. If no mapId is provided,
+        returns the root node of the active map.
+        Parameters:
+        mapId (str, optional): The id of the map.
+        Returns: str: The root node of the map.
+        """
+        if mapId is None:
+            mapId = self.get_active_map()
+
+        circles = self.get_circles()
+        for circle in circles:
+            if "parentId" not in circle.keys():
+                return circle["id"]
+
+        raise Exception("No root circle found")
 
 
 def _assert_percentage(percentage):

@@ -1,0 +1,41 @@
+name: Publish Python Package
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build-and-publish:
+    name: Build and Publish
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python -
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    - name: Install dependencies
+      run: poetry install
+
+    - name: Build package
+      run: poetry build
+
+    - name: Publish to TestPyPI
+      if: github.ref != 'refs/heads/main'
+      run: |
+        poetry config repositories.testpypi https://test.pypi.org/legacy/
+        poetry publish --repository testpypi -u __token__ -p ${{ secrets.TEST_PYPI_API_TOKEN }}
+
+    - name: Publish to PyPI
+      if: github.ref == 'refs/heads/main'
+      run: poetry publish -u __token__ -p ${{ secrets.PYPI_API_TOKEN }}

@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from peerdomclient import PeerdomClient
 
@@ -27,7 +27,7 @@ class TestPeerdomClient(unittest.TestCase):
         mock_request.assert_called_once_with(
             "POST",
             "peers",
-            data='{"firstName": "John", "lastName": "Doe", "nickName": "johndoe", "birthdate": "2000-01-01", "percentage": 1.0}'
+            data="""{"firstName": "John", "lastName": "Doe", "nickName": "johndoe", "birthdate": "2000-01-01", "percentage": 1.0}"""
         )
 
     @patch("peerdomclient.PeerdomClient._make_request")
@@ -37,7 +37,7 @@ class TestPeerdomClient(unittest.TestCase):
         mock_request.assert_called_once_with(
             "PUT",
             "peers/123",
-            data='{"firstName": "John", "lastName": "Doe", "nickName": "johndoe", "birthdate": "2000-01-01", "percentage": 1.0}'
+            data="""{"firstName": "John", "lastName": "Doe", "nickName": "johndoe", "birthdate": "2000-01-01", "percentage": 1.0}"""
         )
 
     @patch("peerdomclient.PeerdomClient._make_request")
@@ -64,13 +64,13 @@ class TestPeerdomClient(unittest.TestCase):
         self.client.create_role(role_name="Test Role", map_id="42", parent_id="123",
                                 electable=True, external=True, custom_fields={"test": "test"})
         mock_request.assert_called_once_with(
-            "POST", "roles", data='{"name": "Test Role", "mapId": "42", "parentId": "123", "electable": true, "external": true, "customFields": {"test": "test"}}')
+            "POST", "roles", data="""{"name": "Test Role", "mapId": "42", "parentId": "123", "electable": true, "external": true, "customFields": {"test": "test"}}""")
 
     @patch("peerdomclient.PeerdomClient._make_request")
     def test_update_role(self, mock_request):
         self.client.update_role(role_id="123", role_name="Test Role")
         mock_request.assert_called_once_with(
-            "PUT", "roles/123", data='{"name": "Test Role"}')
+            "PUT", "roles/123", data="""{"name": "Test Role"}""")
 
     @patch("peerdomclient.PeerdomClient._make_request")
     def test_delete_role(self, mock_request):
@@ -96,14 +96,14 @@ class TestPeerdomClient(unittest.TestCase):
         self.client.create_holder(
             peer_id="42", role_id="123", percentage=100, focus="good")
         mock_request.assert_called_once_with(
-            "POST", "holders", data='{"roleId": "123", "peerId": "42", "percentage": 100, "focus": "good"}')
+            "POST", "holders", data="""{"roleId": "123", "peerId": "42", "percentage": 100, "focus": "good"}""")
 
     @patch("peerdomclient.PeerdomClient._make_request")
     def test_update_holder(self, mock_request):
         self.client.update_holder(
             holder_id="123", peer_id="42", role_id="123", percentage=50, focus="bad")
         mock_request.assert_called_once_with(
-            "PUT", "holders/123", data='{"roleId": "123", "peerId": "42", "percentage": 50, "focus": "bad"}')
+            "PUT", "holders/123", data="""{"roleId": "123", "peerId": "42", "percentage": 50, "focus": "bad"}""")
 
     @patch("peerdomclient.PeerdomClient._make_request")
     def test_delete_holder(self, mock_request):
@@ -132,7 +132,7 @@ class TestPeerdomClient(unittest.TestCase):
         mock_request.assert_called_once_with(
             "POST",
             "circles",
-            data='{"name": "Test Circle", "mapId": "123", "parentId": "p42", "electable": false, "external": false}'
+            data="""{"name": "Test Circle", "mapId": "123", "parentId": "p42", "electable": false, "external": false}"""
         )
 
     @patch("peerdomclient.PeerdomClient._make_request")
@@ -142,7 +142,7 @@ class TestPeerdomClient(unittest.TestCase):
         mock_request.assert_called_once_with(
             "PUT",
             "circles/123",
-            data='{"name": "Test Circle", "mapId": "123", "parentId": "456", "electable": true, "external": true}'
+            data="""{"name": "Test Circle", "mapId": "123", "parentId": "456", "electable": true, "external": true}"""
         )
 
     @patch("peerdomclient.PeerdomClient._make_request")
@@ -157,3 +157,36 @@ class TestPeerdomClient(unittest.TestCase):
         self.client.get_maps()
         mock_request.assert_called_once_with(
             "GET", "maps", params={"limit": None, "offset": None, "with": None})
+
+    @patch("peerdomclient.PeerdomClient._make_request")
+    def test_get_active_map(self, mock_request):
+        self.client.get_maps = MagicMock(return_value=[
+            {"id": "1", "draft": False},
+            {"id": "2", "draft": True}
+        ])
+        self.assertEqual(self.client.get_active_map(), "1")
+
+        self.client.get_maps = MagicMock(return_value=[
+            {"id": "1", "draft": True},
+            {"id": "2", "draft": True}
+        ])
+        with self.assertRaises(Exception) as context:
+            self.client.get_active_map()
+        self.assertEqual(str(context.exception), "No active map found")
+
+    @patch("peerdomclient.PeerdomClient._make_request")
+    def test_get_root_node(self, mock_request):
+        self.client.get_active_map = MagicMock(return_value="1")
+        self.client.get_circles = MagicMock(return_value=[
+            {"id": "1", "parentId": "0"},
+            {"id": "2"}
+        ])
+        self.assertEqual(self.client.get_root_node(), "2")
+
+        self.client.get_circles = MagicMock(return_value=[
+            {"id": "1", "parentId": "0"},
+            {"id": "2", "parentId": "1"}
+        ])
+        with self.assertRaises(Exception) as context:
+            self.client.get_root_node()
+        self.assertEqual(str(context.exception), "No root circle found")
