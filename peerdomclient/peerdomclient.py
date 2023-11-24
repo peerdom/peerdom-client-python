@@ -88,7 +88,6 @@ class PeerdomClient:
             first_name(str): First name of the peer.
             last_name(str, optional): Last name of the peer.
             nick_name(str, optional): Nickname of the peer.
-            birthdate(str, optional): Birthdate of the peer.
             percentage(float, optional): Percentage value associated with the peer.
 
         Returns:
@@ -98,8 +97,7 @@ class PeerdomClient:
             "firstName": first_name,
             "lastName": last_name,
             "nickName": nick_name,
-            "birthdate": birthdate,
-            "percentage": percentage
+            "percentage": percentage,
         }
         data = {k: v for k, v in data.items() if v is not None}
         return self._make_request("POST", "peers", data=json.dumps(data))
@@ -211,6 +209,7 @@ class PeerdomClient:
         electable (bool, optional): A flag indicating whether the role is electable.
         external (bool, optional): A flag indicating whether the role is external.
         custom_fields (dict, optional): A dictionary of custom fields for the role.
+        goals (dict, optional): A dictionary of gols linked to the role.
 
         Returns:
         dict: A dictionary representing the updated role.
@@ -221,7 +220,8 @@ class PeerdomClient:
             "parentId": parent_id,
             "electable": electable,
             "external": external,
-            "customFields": custom_fields
+            "customFields": custom_fields,
+            "goals": goals,
         }
         # remove None values
         data = {k: v for k, v in data.items() if v is not None}
@@ -239,96 +239,53 @@ class PeerdomClient:
         """
         return self._make_request("DELETE", f"roles/{role_id}")
 
-    # HOLDERS
-    def get_holders(self, limit=None, offset=None, with_customfields=False):
+    # ASSIGN
+    def assign_role_to_peer(
+        self,
+        role_id: str,
+        peer_id: str,
+        percentage: Optional[float] = None,
+        focus: Optional[str] = None,
+        elected_until: Optional[str] = None,
+    ):
         """
-        Retrieves a list of holders from the API.
+        Assigns an existing role to a peer.
 
         Parameters:
-        limit (int, optional): The maximum number of holders to return.
-        offset (int, optional): The number of holders to skip in the response.
-        with_customfields (bool, optional): Whether to include custom fields in the response.
+            role_id (str): The ID of the role to be assigned.
+            peer_id (str): The ID of the peer.
+            percentage (float, optional): The percentage of the role.
+            focus (str, optional): The focus of the role assignment.
+            elected_until (str, optional): The date until which the peer is elected for this role.
 
         Returns:
-        list: A list of holders from the API response.
+            dict: The API response.
         """
-        return self._get_with_customfields("holders", limit=limit, offset=offset, with_customfields=with_customfields)
-
-    def get_holder(self, holder_id, with_customfields=False):
-        """
-        Retrieves a specific holder from the API.
-
-        Parameters:
-        holder_id (str): The id of the holder to retrieve.
-        with_customfields (bool, optional): Whether to include custom fields in the response.
-
-        Returns:
-        dict: A dictionary representing the holder from the API response.
-        """
-        return self._get_with_customfields("holders", id=holder_id, with_customfields=with_customfields)
-
-    def create_holder(self, role_id: str, peer_id: str, percentage: Optional[float] = 0, focus: Optional[str] = None):
-        """
-        Creates a new holder in the Peerdom system. Multiple holders can be created for the same role and peer.
-
-        Parameters:
-        role_id (str): The id of the role to which the holder belongs.
-        peer_id (str): The id of the peer to which the holder belongs.
-        percentage (float, optional): The percentage of the role held by the peer.
-        focus (str, optional): The focus of the holder.
-
-        Returns:
-        dict: A dictionary representing the newly created holder.
-        """
-        _assert_percentage(percentage)
+        _assert_percentage(percentage=percentage)
         data = {
-            "roleId": role_id,
             "peerId": peer_id,
             "percentage": percentage,
-            "focus": focus
+            "focus": focus,
+            "electedUntil": elected_until,
         }
-        # remove None values
+        # Removing None values
         data = {k: v for k, v in data.items() if v is not None}
+        return self._make_request("POST",
+                                  f"roles/{role_id}/peers",
+                                  data=json.dumps(data))
 
-        return self._make_request("POST", "holders", data=json.dumps(data))
-
-    def update_holder(self, holder_id: str, role_id: Optional[str] = None, peer_id: Optional[str] = None, percentage: Optional[float] = None, focus: Optional[str] = None):
+    def unassign_role_from_peer(self, role_id: str, peer_id: str):
         """
-        Updates a specific holder in the Peerdom system.
+        Unassigns an existing role from a peer.
 
         Parameters:
-        holder_id (str): The id of the holder to update.
-        role_id (str, optional): The id of the role to which the holder belongs.
-        peer_id (str, optional): The id of the peer to which the holder belongs.
-        percentage (float, optional): The percentage of the role held by the peer.
-        focus (str, optional): The focus of the holder.
+            role_id (str): The ID of the role to be unassigned.
+            peer_id (str): The ID of the peer.
 
         Returns:
-        dict: A dictionary representing the updated holder.
+            dict: The API response.
         """
-        _assert_percentage(percentage)
-        data = {
-            "roleId": role_id,
-            "peerId": peer_id,
-            "percentage": percentage,
-            "focus": focus
-        }
-        # remove None values
-        data = {k: v for k, v in data.items() if v is not None}
-
-        return self._make_request("PUT", f"holders/{holder_id}", data=json.dumps(data))
-
-    def delete_holder(self, holder_id):
-        """
-        Deletes a specific holder identified by the holder_id.
-
-        Parameters:
-        holder_id (str): The id of the holder to delete.
-
-        Returns:
-        dict: The API response from the deletion request.
-        """
-        return self._make_request("DELETE", f"holders/{holder_id}")
+        return self._make_request("DELETE", f"roles/{role_id}/peers/{peer_id}")
 
     # CIRCLES
 
