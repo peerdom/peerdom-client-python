@@ -13,103 +13,140 @@ class TestPeerdomClient(unittest.TestCase):
     def test_get_peers(self, mock_request):
         self.client.get_peers()
         mock_request.assert_called_once_with(
-            "GET", "peers", params={"limit": None, "offset": None, "with": None})
+            "GET", "peers", params={"limit": None, "offset": None, "with": None}
+        )
 
     @patch("peerdomclient.PeerdomClient._make_request")
     def test_get_peer(self, mock_request):
         self.client.get_peer("123")
         mock_request.assert_called_once_with(
-            "GET", "peers/123", params={"limit": None, "offset": None, "with": None})
+            "GET", "peers/123", params={"limit": None, "offset": None, "with": None}
+        )
 
     @patch("peerdomclient.PeerdomClient._make_request")
     def test_create_peer(self, mock_request):
-        self.client.create_peer("John", "Doe", "johndoe", "2000-01-01", 1.0)
+        self.client.create_peer("John", "Doe", "johndoe", 1.0)
         mock_request.assert_called_once_with(
             "POST",
             "peers",
-            data="""{"firstName": "John", "lastName": "Doe", "nickName": "johndoe", "birthdate": "2000-01-01", "percentage": 1.0}"""
+            data=json.dumps({
+                "firstName": "John",
+                "lastName": "Doe",
+                "nickName": "johndoe",
+                "percentage": 1.0
+            })
+
         )
 
     @patch("peerdomclient.PeerdomClient._make_request")
     def test_update_peer(self, mock_request):
-        self.client.update_peer("123", first_name="John", last_name="Doe",
-                                nick_name="johndoe", birthdate="2000-01-01", percentage=1.0)
+        self.client.update_peer(
+            "123",
+            first_name="John",
+            last_name="Doe",
+            nick_name="johndoe",
+            birthdate="2000-01-01",
+            percentage=1.0,
+        )
         mock_request.assert_called_once_with(
             "PUT",
             "peers/123",
-            data="""{"firstName": "John", "lastName": "Doe", "nickName": "johndoe", "birthdate": "2000-01-01", "percentage": 1.0}"""
+            data=json.dumps({
+                "firstName": "John",
+                "lastName": "Doe",
+                "nickName": "johndoe",
+                "birthdate": "2000-01-01",
+                "percentage": 1.0
+            })
+
         )
 
     @patch("peerdomclient.PeerdomClient._make_request")
     def test_delete_peer(self, mock_request):
         self.client.delete_peer("123")
-        mock_request.assert_called_once_with(
-            "DELETE", "peers/123")
+        mock_request.assert_called_once_with("DELETE", "peers/123")
 
     ### ROLES ###
     @patch("peerdomclient.PeerdomClient._make_request")
     def test_get_roles(self, mock_request):
         self.client.get_roles()
         mock_request.assert_called_once_with(
-            "GET", "roles", params={"limit": None, "offset": None, "with": None})
+            "GET", "roles", params={"limit": None, "offset": None, "with": None}
+        )
 
     @patch("peerdomclient.PeerdomClient._make_request")
     def test_get_role(self, mock_request):
         self.client.get_role("123")
         mock_request.assert_called_once_with(
-            "GET", "roles/123", params={"limit": None, "offset": None, "with": None})
+            "GET", "roles/123", params={"limit": None, "offset": None, "with": None}
+        )
 
     @patch("peerdomclient.PeerdomClient._make_request")
     def test_create_role(self, mock_request):
-        self.client.create_role(role_name="Test Role", map_id="42", parent_id="123",
-                                electable=True, external=True, custom_fields={"test": "test"})
+        self.client.create_role(
+            role_name="Test Role",
+            map_id="42",
+            parent_id="123",
+            electable=True,
+            external=True,
+            custom_fields={"test": "test"},
+            goals={"goals": "goals"},
+        )
         mock_request.assert_called_once_with(
-            "POST", "roles", data="""{"name": "Test Role", "mapId": "42", "parentId": "123", "electable": true, "external": true, "customFields": {"test": "test"}}""")
+            "POST",
+            "roles",
+            data=json.dumps({
+                "name": "Test Role",
+                "mapId": "42",
+                "parentId": "123",
+                "electable": True,
+                "external": True,
+                "customFields": {"test": "test"},
+                "goals": {"goals": "goals"}
+            })
+
+        )
 
     @patch("peerdomclient.PeerdomClient._make_request")
     def test_update_role(self, mock_request):
         self.client.update_role(role_id="123", role_name="Test Role")
         mock_request.assert_called_once_with(
-            "PUT", "roles/123", data="""{"name": "Test Role"}""")
+            "PUT", "roles/123", data="""{"name": "Test Role"}"""
+        )
 
     @patch("peerdomclient.PeerdomClient._make_request")
     def test_delete_role(self, mock_request):
         self.client.delete_role("123")
-        mock_request.assert_called_once_with(
-            "DELETE", "roles/123")
+        mock_request.assert_called_once_with("DELETE", "roles/123")
 
-    ### HOLDERS ###
+    ### ASSIGN ###
     @patch("peerdomclient.PeerdomClient._make_request")
-    def test_get_holders(self, mock_request):
-        self.client.get_holders()
-        mock_request.assert_called_once_with(
-            "GET", "holders", params={"limit": None, "offset": None, "with": None})
+    def test_assign_role_to_peer(self, mock_request):
+        self.client.assign_role_to_peer(
+            role_id="123",
+            peer_id="456",
+            percentage=50,
+            focus="Test",
+            elected_until="2023-01-01",
+        )
 
-    @patch("peerdomclient.PeerdomClient._make_request")
-    def test_get_holder(self, mock_request):
-        self.client.get_holder("123")
         mock_request.assert_called_once_with(
-            "GET", "holders/123", params={"limit": None, "offset": None, "with": None})
+            "POST",
+            "roles/123/peers",
+            data=json.dumps({
+                "peerId": "456",
+                "percentage": 50,
+                "focus": "Test",
+                "electedUntil": "2023-01-01"
+            })
 
-    @patch("peerdomclient.PeerdomClient._make_request")
-    def test_create_holder(self, mock_request):
-        self.client.create_holder(
-            peer_id="42", role_id="123", percentage=100, focus="good")
-        mock_request.assert_called_once_with(
-            "POST", "holders", data="""{"roleId": "123", "peerId": "42", "percentage": 100, "focus": "good"}""")
-
-    @patch("peerdomclient.PeerdomClient._make_request")
-    def test_update_holder(self, mock_request):
-        self.client.update_holder(
-            holder_id="123", peer_id="42", role_id="123", percentage=50, focus="bad")
-        mock_request.assert_called_once_with(
-            "PUT", "holders/123", data="""{"roleId": "123", "peerId": "42", "percentage": 50, "focus": "bad"}""")
+        )
 
     @patch("peerdomclient.PeerdomClient._make_request")
-    def test_delete_holder(self, mock_request):
-        self.client.delete_holder("123")
+    def test_unassign_role_from_peer(self, mock_request):
+        self.client.unassign_role_from_peer(role_id="123", peer_id="456")
         mock_request.assert_called_once_with(
-            "DELETE", "holders/123")
+            "DELETE", "roles/123/peers/456")
 
     ### CIRCLES ###
 
