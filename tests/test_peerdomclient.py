@@ -1,3 +1,4 @@
+import json
 import unittest
 from unittest.mock import MagicMock, patch
 
@@ -5,7 +6,6 @@ from peerdomclient import PeerdomClient
 
 
 class TestPeerdomClient(unittest.TestCase):
-
     def setUp(self):
         self.client = PeerdomClient("api_1234")
 
@@ -154,59 +154,86 @@ class TestPeerdomClient(unittest.TestCase):
     def test_get_circles(self, mock_request):
         self.client.get_circles()
         mock_request.assert_called_once_with(
-            "GET", "circles", params={"limit": None, "offset": None, "with": None})
+            "GET", "circles", params={"limit": None, "offset": None, "with": None}
+        )
 
     @patch("peerdomclient.PeerdomClient._make_request")
     def test_get_circle(self, mock_request):
         self.client.get_circle("123")
         mock_request.assert_called_once_with(
-            "GET", "circles/123", params={"limit": None, "offset": None, "with": None})
+            "GET", "circles/123", params={"limit": None, "offset": None, "with": None}
+        )
 
     @patch("peerdomclient.PeerdomClient._make_request")
     def test_create_circle(self, mock_request):
         self.client.create_circle(
-            name="Test Circle", map_id="123", parent_id="p42", electable=False, external=False)
+            name="Test Circle",
+            map_id="123",
+            parent_id="p42",
+            electable=False,
+            external=False,
+        )
         mock_request.assert_called_once_with(
             "POST",
             "circles",
-            data="""{"name": "Test Circle", "mapId": "123", "parentId": "p42", "electable": false, "external": false}"""
+            data=json.dumps({
+                "name": "Test Circle",
+                "mapId": "123",
+                "parentId": "p42",
+                "electable": False,
+                "external": False
+            })
+
         )
 
     @patch("peerdomclient.PeerdomClient._make_request")
     def test_update_circle(self, mock_request):
         self.client.update_circle(
-            "123", name="Test Circle", map_id="123", parent_id="456", electable=True, external=True)
+            "123",
+            name="Test Circle",
+            map_id="123",
+            parent_id="456",
+            electable=True,
+            external=True,
+        )
         mock_request.assert_called_once_with(
             "PUT",
             "circles/123",
-            data="""{"name": "Test Circle", "mapId": "123", "parentId": "456", "electable": true, "external": true}"""
+            data=json.dumps({
+                "name": "Test Circle",
+                "mapId": "123",
+                "parentId": "456",
+                "electable": True,
+                "external": True
+            })
+
         )
 
     @patch("peerdomclient.PeerdomClient._make_request")
     def test_delete_circle(self, mock_request):
         self.client.delete_circle("123")
-        mock_request.assert_called_once_with(
-            "DELETE", "circles/123")
+        mock_request.assert_called_once_with("DELETE", "circles/123")
 
     ### MAPS ###
     @patch("peerdomclient.PeerdomClient._make_request")
     def test_get_maps(self, mock_request):
         self.client.get_maps()
         mock_request.assert_called_once_with(
-            "GET", "maps", params={"limit": None, "offset": None, "with": None})
+            "GET", "maps", params={"limit": None, "offset": None, "with": None}
+        )
 
     @patch("peerdomclient.PeerdomClient._make_request")
     def test_get_active_map(self, mock_request):
-        self.client.get_maps = MagicMock(return_value=[
-            {"id": "1", "draft": False},
-            {"id": "2", "draft": True}
-        ])
+        self.client.get_maps = MagicMock(
+            return_value=[{"id": "1", "draft": False},
+                          {"id": "2", "draft": True}]
+        )
         self.assertEqual(self.client.get_active_map(), "1")
 
-        self.client.get_maps = MagicMock(return_value=[
-            {"id": "1", "draft": True},
-            {"id": "2", "draft": True}
-        ])
+        self.client.get_maps = MagicMock(
+            return_value=[{"id": "1", "draft": True},
+                          {"id": "2", "draft": True}]
+        )
         with self.assertRaises(Exception) as context:
             self.client.get_active_map()
         self.assertEqual(str(context.exception), "No active map found")
@@ -214,16 +241,15 @@ class TestPeerdomClient(unittest.TestCase):
     @patch("peerdomclient.PeerdomClient._make_request")
     def test_get_root_node(self, mock_request):
         self.client.get_active_map = MagicMock(return_value="1")
-        self.client.get_circles = MagicMock(return_value=[
-            {"id": "1", "parentId": "0"},
-            {"id": "2"}
-        ])
+        self.client.get_circles = MagicMock(
+            return_value=[{"id": "1", "parentId": "0"}, {"id": "2"}]
+        )
         self.assertEqual(self.client.get_root_node(), "2")
 
-        self.client.get_circles = MagicMock(return_value=[
-            {"id": "1", "parentId": "0"},
-            {"id": "2", "parentId": "1"}
-        ])
+        self.client.get_circles = MagicMock(
+            return_value=[{"id": "1", "parentId": "0"},
+                          {"id": "2", "parentId": "1"}]
+        )
         with self.assertRaises(Exception) as context:
             self.client.get_root_node()
         self.assertEqual(str(context.exception), "No root circle found")
