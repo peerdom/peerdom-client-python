@@ -22,7 +22,7 @@ ruff = "0.1.6"
 pytest = "^7.4.2"
 pytest-cov = "4.1.0"
 pytest_mock = "3.11.1"
-pytest-random-order = "1.1.0"
+pytest-random-order = "1.1.1"
 setuptools-scm = "8.0.3"
 poetry-dynamic-versioning = "^1.0.0"
 
