@@ -13,7 +13,7 @@ classifiers = ["Programming Language :: Python :: 3"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-Requests = "2.31.0"
+Requests = "2.32.3"
 poetry-dynamic-versioning = "^1.1.0"
 
 [tool.poetry.group.test.dependencies]
